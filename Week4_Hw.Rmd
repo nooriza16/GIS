@@ -1,9 +1,22 @@
-###Week 4 Homework##
-install.packages("countrycode")
+---
+title: "Week 4 Homework"
+author: "Nooriza Maharani"
+date: "2024-10-25"
+output:
+  html_document: default
+  pdf_document: default
+---
 
 
+```{r}
+##1 Load the library needed
 library(easypackages)
 libraries("countrycode", "dplyr", "tidyverse", "sf","tmap")
+```
+
+
+```{r}
+##2 Load the CSV data: World GII Composite Data
 
 composit <- read.csv("HDR23-24_Composite_indices_complete_time_series.csv",
                      header = TRUE,
@@ -12,44 +25,61 @@ composit <- read.csv("HDR23-24_Composite_indices_complete_time_series.csv",
                      check.names = FALSE)
 
 names(composit)
+```
 
-#selecting column using contains
+
+```{r}
+##3 Dealing with CSV data
+
+#selecting columns using contains
 data_2years <- composit %>%  dplyr::select(
   contains("iso3"),
   contains("country"),
   contains("gii_2010"),
   contains("gii_2019"))
 
-#Difference in Gii world> no need to continue, I initially
-#want to create column that can specify which country above/below world
-n <- 206
-w_difference <- data_2years$gii_2019[n] - data_2years$gii_2010[n]
-w_difference
+#Difference in GII world (I initially want to create column that specify which country above/below world)
+#n <- 206
+#w_difference <- data_2years$gii_2019[n] - data_2years$gii_2010[n]
 
-###Delete a column !
+
+#Delete unnecessary columns 
 data_3years <- data_2years[-206,] #world
 cleaned_csv <- data_3years[-c(196:205),] #unnecessary column
 
+#Create new column : difference  and categorical column for the result
 world_gii <- cleaned_csv %>%
   mutate(difference = (gii_2019-gii_2010)) %>%
   mutate(compare = case_when(difference >= 0 ~ "Index Increasing",
                              difference < 0 ~ "Index Decreasing",
                              TRUE ~ as.character(NA)))
 
-# "NA" appears as a label in the legend> replace NA with a specific string:
+# Making "NA" appears as a label in the legend> replace NA with a specific string:
 world_gii <- world_gii %>%
   mutate(compare = ifelse(is.na(compare), "NA", compare))
+```
 
-#open geoJSON
+
+```{r}
+##4 Load Geojson file
+
 world_json <- st_read("World_Countries_(Generalized)_9029012925078512962.geojson")
 
+```
 
-#creating iso3 (in csv iso3 already exist,it is more common to use iso 3 instead of iso 2)
+```{r}
+##5 Dealing with JSON data: World Countries
+
+#Creating iso3
+#(in csv iso3 already exist & it is more common to use iso 3 instead of iso 2)
 world_json2 <- world_json %>%
 mutate(iso3_code = countrycode(COUNTRY, "country.name", "iso3c"))
 
+```
 
-#join the data (it is common to use iso3 instead iso2
+```{r}
+##6 Join JSON and CSV
+
 world_gii_joined <- world_json2 %>% 
   merge(.,
         world_gii,
@@ -60,8 +90,12 @@ world_gii_joined <- world_json2 %>%
 
 ###Delete unnecessary columns after joined 
 world_gii_joined2 <- world_gii_joined[,-c(2:6)]
+```
 
-#Create a map
+
+```{r}
+##7 Viz : Creating a map
+
 tmap_mode("plot")
 
 
@@ -74,3 +108,4 @@ tm_layout(main.title = "World Gender Inequality Index (2019-2010)",
           legend.text.size = 0.5,
           legend.title.size = 0.5,
           legend.position = c("left", "bottom"))
+```
