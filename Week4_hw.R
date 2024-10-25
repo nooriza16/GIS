@@ -74,5 +74,3 @@ tm_layout(main.title = "World Gender Inequality Index (2019-2010)",
           legend.text.size = 0.5,
           legend.title.size = 0.5,
           legend.position = c("left", "bottom"))
-
- library(usethis)
