@@ -20,7 +20,7 @@ data_2years <- composit %>%  dplyr::select(
   contains("gii_2010"),
   contains("gii_2019"))
 
-#Difference in Gii world #no need to continue this step
+#Difference in Gii world > no need to continue this step
 n <- 206
 w_difference <- data_2years$gii_2019[n] - data_2years$gii_2010[n]
 w_difference
@@ -60,7 +60,7 @@ world_gii_joined <- world_json2 %>%
 ###Delete columns !!! 
 world_gii_joined2 <- world_gii_joined[,-c(2:6)]
 
-#2 map
+#map
 tmap_mode("plot")
 
 library(tmap)
