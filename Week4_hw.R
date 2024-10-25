@@ -3,7 +3,7 @@ install.packages("countrycode")
 
 
 library(easypackages)
-libraries("countrycode", "here", "dplyr", "tidyverse", "sf","tmap")
+libraries("countrycode", "dplyr", "tidyverse", "sf","tmap")
 
 composit <- read.csv("HDR23-24_Composite_indices_complete_time_series.csv",
                      header = TRUE,
@@ -20,12 +20,13 @@ data_2years <- composit %>%  dplyr::select(
   contains("gii_2010"),
   contains("gii_2019"))
 
-#Difference in Gii world > no need to continue this step
+#Difference in Gii world> no need to continue, I initially
+#want to create column that can specify which country above/below world
 n <- 206
 w_difference <- data_2years$gii_2019[n] - data_2years$gii_2010[n]
 w_difference
 
-###Delete a column !!! 
+###Delete a column !
 data_3years <- data_2years[-206,] #world
 cleaned_csv <- data_3years[-c(196:205),] #unnecessary column
 
@@ -35,7 +36,7 @@ world_gii <- cleaned_csv %>%
                              difference < 0 ~ "Index Decreasing",
                              TRUE ~ as.character(NA)))
 
-# If you want to ensure "NA" appears as a label in the legend, you can replace NA with a specific string:
+# "NA" appears as a label in the legend> replace NA with a specific string:
 world_gii <- world_gii %>%
   mutate(compare = ifelse(is.na(compare), "NA", compare))
 
@@ -43,12 +44,12 @@ world_gii <- world_gii %>%
 world_json <- st_read("World_Countries_(Generalized)_9029012925078512962.geojson")
 
 
-#creating iso3 from a country in geojson file
+#creating iso3 from a country in geojson file, because csv iso3 already exist in csv
 world_json2 <- world_json %>%
 mutate(iso3_code = countrycode(COUNTRY, "country.name", "iso3c"))
 
 
-#join the data basically use the iso3
+#join the data (it is common to use iso3 instead iso2
 world_gii_joined <- world_json2 %>% 
   merge(.,
         world_gii,
@@ -57,14 +58,12 @@ world_gii_joined <- world_json2 %>%
         no.dups = TRUE) %>%
   distinct()
 
-###Delete columns !!! 
+###Delete unnecessary columns after joined 
 world_gii_joined2 <- world_gii_joined[,-c(2:6)]
 
-#map
+#Create a map
 tmap_mode("plot")
 
-library(tmap)
-library(sf)  # Ensure you have the necessary libraries loaded
 
 tm_shape(world_gii_joined2) + 
 tm_fill("compare", title = "Legend")+
