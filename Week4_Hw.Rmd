@@ -3,20 +3,23 @@ title: "Week 4 Homework"
 author: "Nooriza Maharani"
 date: "2024-10-25"
 output:
-  html_document: default
-  pdf_document: default
+  html_document: 
+    theme : cerulean
+    toc : true
+    toc_float : true
+  
 ---
 
-
+#### 1. Load the library needed
 ```{r}
-##1 Load the library needed
+
 library(easypackages)
 libraries("countrycode", "dplyr", "tidyverse", "sf","tmap")
 ```
 
 
+#### 2. Load the CSV data: World GII Composite Data
 ```{r}
-##2 Load the CSV data: World GII Composite Data
 
 composit <- read.csv("HDR23-24_Composite_indices_complete_time_series.csv",
                      header = TRUE,
@@ -24,12 +27,10 @@ composit <- read.csv("HDR23-24_Composite_indices_complete_time_series.csv",
                      encoding = "latin1",
                      check.names = FALSE)
 
-names(composit)
 ```
 
-
+#### 3. Dealing with CSV data
 ```{r}
-##3 Dealing with CSV data
 
 #selecting columns using contains
 data_2years <- composit %>%  dplyr::select(
@@ -59,16 +60,15 @@ world_gii <- world_gii %>%
   mutate(compare = ifelse(is.na(compare), "NA", compare))
 ```
 
-
+#### 4. Load Geojson file
 ```{r}
-##4 Load Geojson file
 
 world_json <- st_read("World_Countries_(Generalized)_9029012925078512962.geojson")
 
 ```
 
+#### 5. Dealing with JSON data: World Countries
 ```{r}
-##5 Dealing with JSON data: World Countries
 
 #Creating iso3
 #(in csv iso3 already exist & it is more common to use iso 3 instead of iso 2)
@@ -77,9 +77,8 @@ mutate(iso3_code = countrycode(COUNTRY, "country.name", "iso3c"))
 
 ```
 
+#### 6. Join JSON and CSV
 ```{r}
-##6 Join JSON and CSV
-
 world_gii_joined <- world_json2 %>% 
   merge(.,
         world_gii,
@@ -93,8 +92,8 @@ world_gii_joined2 <- world_gii_joined[,-c(2:6)]
 ```
 
 
+#### 7. Viz : Creating a map
 ```{r}
-##7 Viz : Creating a map
 
 tmap_mode("plot")
 
