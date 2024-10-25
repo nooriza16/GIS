@@ -1,2 +1,4 @@
-GIS Practicals on MSc Urban Spatial Science UCL 2024
+GIS Practicals  MSc Urban Spatial Science UCL 2024
+
+### The module is based on this [click here][(https://jreades.github.io/fsds/)](https://andrewmaclachlan.github.io/CASA0005repo/index.html)
 
